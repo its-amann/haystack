@@ -401,7 +401,7 @@ class SearchableToolset(Toolset):
         :returns: New SearchableToolset instance.
         :raises TypeError: If a serialized catalog entry is not a subclass of Tool or Toolset.
         """
-        inner_data = data["data"]
+        inner_data = dict(data["data"])
         deserialize_tools_or_toolset_inplace(inner_data, key="catalog")
         optional_keys = (
             "top_k",

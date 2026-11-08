@@ -262,3 +262,5 @@ class TestSkillToolset:
         restored = SkillToolset.from_dict(data)
         restored.warm_up()
         assert set(restored.skills) == {"pdf-forms"}
+        assert isinstance(data["data"]["store"], dict)
+        SkillToolset.from_dict(data)

@@ -191,6 +191,6 @@ class SkillToolset(Toolset):
         :param data: Dictionary representation of the toolset, as produced by `to_dict`.
         :returns: A new SkillToolset instance.
         """
-        inner_data = data["data"]
+        inner_data = dict(data["data"])
         deserialize_component_inplace(inner_data, key="store")
         return cls(**inner_data)

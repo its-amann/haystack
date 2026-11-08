@@ -431,6 +431,14 @@ class TestSearchableToolsetSerialization:
         assert restored._top_k == 3
         assert len(restored._catalog) == len(large_catalog)
 
+    def test_from_dict_does_not_mutate_the_caller_dictionary(self, large_catalog):
+        data = SearchableToolset(catalog=large_catalog, top_k=3).to_dict()
+        SearchableToolset.from_dict(data)
+        assert all(isinstance(item, dict) for item in data["data"]["catalog"])
+        restored = SearchableToolset.from_dict(data)
+        restored.warm_up()
+        assert len(restored._catalog) == len(large_catalog)
+
     def test_from_dict_with_invalid_item_type(self):
         data = {
             "type": "haystack.tools.searchable_toolset.SearchableToolset",
