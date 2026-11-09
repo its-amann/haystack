@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import copy
+import re
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, Annotated, Any
 
@@ -206,7 +207,7 @@ class SearchableToolset(Toolset):
             # so without this the name words are unreachable when the description omits them.
             documents = [
                 Document(
-                    content=f"{tool.name} {' '.join(tool.name.split('_'))} {tool.description}",
+                    content=f"{tool.name} {re.sub(r'_|(?<=[a-z0-9])(?=[A-Z])', ' ', tool.name)} {tool.description}",
                     meta={"tool_name": tool.name},
                 )
                 for tool in self._catalog

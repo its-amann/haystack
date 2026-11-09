@@ -275,6 +275,23 @@ class TestSearchableToolsetBM25Mode:
         # A keyword that is not present anywhere must still return nothing.
         assert "No tools found" in toolset._bootstrap_tool.invoke(tool_keywords="zzznotpresent")
 
+    def test_search_tools_matches_camel_case_name_word(self):
+        def make(name: str, description: str) -> Tool:
+            return Tool(
+                name=name,
+                description=description,
+                parameters={"type": "object", "properties": {}},
+                function=lambda: "ok",
+            )
+
+        catalog = [make("getWeather", "Current conditions for a city."), make("sendEmail", "Deliver a message.")]
+        toolset = SearchableToolset(catalog=catalog, search_threshold=2)
+        toolset.warm_up()
+
+        result = toolset._bootstrap_tool.invoke(tool_keywords="weather")
+        assert "getWeather" in result
+        assert "getWeather" in toolset._discovered_tools
+
     def test_search_tools_auto_loads(self, large_catalog):
         """Test that search_tools auto-loads found tools."""
         toolset = SearchableToolset(catalog=large_catalog, top_k=3)
