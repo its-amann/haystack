@@ -300,6 +300,16 @@ class JsonNativeTypesModel(pydantic.BaseModel):
     amount: Decimal
 
 
+class StrictJsonNativeModel(pydantic.BaseModel):
+    model_config = pydantic.ConfigDict(strict=True)
+    when: datetime
+    uid: UUID
+
+
+class StrictFieldModel(pydantic.BaseModel):
+    when: datetime = pydantic.Field(strict=True)
+
+
 class TestPydanticModelJsonSerialization:
     """Pydantic models serialize to JSON-native data, so snapshots survive `json.dump`."""
 
@@ -351,6 +361,13 @@ class TestPydanticModelJsonSerialization:
         )
         deserialized = _deserialize_value_with_schema(_serialize_value_with_schema({"model": model}))
         assert deserialized == {"model": model}
+
+    def test_strict_model_round_trips(self):
+        model = StrictJsonNativeModel(when=datetime(2024, 1, 2), uid=UUID("12345678-1234-5678-1234-567812345678"))
+        assert _deserialize_value_with_schema(_serialize_value_with_schema(model)) == model
+
+        field_model = StrictFieldModel(when=datetime(2024, 1, 2))
+        assert _deserialize_value_with_schema(_serialize_value_with_schema(field_model)) == field_model
 
 
 def test_serialize_and_deserialize_value_with_schema_with_various_types():

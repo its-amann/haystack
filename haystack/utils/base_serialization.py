@@ -316,7 +316,9 @@ def _deserialize_value(value: dict[str, Any]) -> Any:
     # handle pydantic models
     if issubclass(cls, pydantic.BaseModel):
         try:
-            return cls.model_validate(payload)
+            # Pydantic models are dumped in JSON mode, so datetime/UUID/Decimal fields arrive as strings.
+            # Lax validation parses them back even when the model or field is declared strict.
+            return cls.model_validate(payload, strict=False)
         except Exception as e:
             raise DeserializationError(
                 f"Failed to deserialize data '{payload}' into Pydantic model '{value_type}'"
