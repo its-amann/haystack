@@ -863,6 +863,27 @@ class TestUtilities:
 
         assert _result_to_string(Unsupported()) == "unsupported"
 
+    def test_result_to_string_uses_to_dict_for_nested_objects(self):
+        @dataclass
+        class SearchResult:
+            query: str
+            documents: list
+
+        doc = Document(content="hello", meta={"source": "a.txt"})
+        expected_doc = json.loads(_result_to_string(doc))
+
+        assert json.loads(_result_to_string(SearchResult(query="q", documents=[doc]))) == {
+            "query": "q",
+            "documents": [expected_doc],
+        }
+        assert json.loads(_result_to_string((doc, 1))) == [expected_doc, 1]
+
+        message = ChatMessage.from_user("hi")
+        assert json.loads(_result_to_string(SearchResult(query="q", documents=[message]))) == {
+            "query": "q",
+            "documents": [message.to_dict()],
+        }
+
     def test_merge_tool_outputs_result_not_a_dict(self, weather_tool):
         state = State(schema={"weather": {"type": str}})
         _merge_tool_outputs_into_state(tool=weather_tool, result="test", state=state)

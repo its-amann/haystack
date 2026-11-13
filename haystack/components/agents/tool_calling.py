@@ -99,6 +99,8 @@ def _json_default(value: Any) -> Any:
     :returns: A JSON-compatible representation of the value.
     :raises TypeError: If the value has an unsupported type.
     """
+    if callable(getattr(value, "to_dict", None)):
+        return _serializable_value(value=value.to_dict(), use_placeholders=False)
     if isinstance(value, BaseModel):
         return value.model_dump(mode="json")
     if dataclasses.is_dataclass(value) and not isinstance(value, type):
