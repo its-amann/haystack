@@ -280,6 +280,12 @@ class TestPipelineBase:
         with pytest.raises(DeserializationError, match="expects a dictionary"):
             PipelineBase.loads(payload)
 
+    @pytest.mark.parametrize("payload", ["components:\n", "components: []", "components: just a string"])
+    def test_pipeline_loads_rejects_non_mapping_components(self, payload):
+        # an empty or list valued `components` key used to raise AttributeError from .items()
+        with pytest.raises(DeserializationError, match="'components' must be a mapping"):
+            PipelineBase.loads(payload)
+
     def test_pipeline_loads_invalid_data(self):
         invalid_yaml = """components:
         Comp1:
