@@ -4,6 +4,7 @@
 
 import asyncio
 import contextlib
+import gc
 import logging
 from typing import Any
 
@@ -505,3 +506,41 @@ async def test_aclose_respects_caller_deadline():
         await caller
 
     instance.release.set()
+
+
+@pytest.mark.asyncio
+async def test_aclose_caller_cancellation_does_not_leak_unretrieved_task_exception():
+    """A cleanup failure that lands after the caller of `aclose()` was cancelled must not be reported as unretrieved."""
+    loop = asyncio.get_running_loop()
+    reported = []
+    previous_handler = loop.get_exception_handler()
+    loop.set_exception_handler(lambda _loop, context: reported.append(context["message"]))
+    release = asyncio.Event()
+
+    async def failing_cleanup():
+        try:
+            await asyncio.Future()
+        finally:
+            await release.wait()
+            raise RuntimeError("close failed")
+
+    try:
+        pipeline_task = asyncio.create_task(failing_cleanup())
+        await asyncio.sleep(0)
+        handle = PipelineStreamHandle(queue=asyncio.Queue(), task=pipeline_task)
+
+        caller = asyncio.create_task(handle.aclose())
+        await asyncio.sleep(0)
+        caller.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await caller
+
+        release.set()
+        await asyncio.wait({pipeline_task})
+
+        del handle, pipeline_task, caller
+        gc.collect()
+        await asyncio.sleep(0)
+        assert "Task exception was never retrieved" not in reported
+    finally:
+        loop.set_exception_handler(previous_handler)

@@ -111,6 +111,8 @@ class PipelineStreamHandle:
         in the task that called `aclose()`.
         """
         if not self._task.done():
+            # retrieve a late cleanup failure even if this caller stops waiting first
+            self._task.add_done_callback(lambda task: task.cancelled() or task.exception())
             self._task.cancel()
             try:
                 # `asyncio.wait()` does not raise failures from the pipeline task, so cleanup
