@@ -173,6 +173,19 @@ def test_to_mermaid_text_gives_super_component_names_that_are_not_mermaid_ids_a_
     assert ":::rag pipeline" not in text
 
 
+def test_to_mermaid_text_super_component_named_component_does_not_restyle_other_components():
+    inner = Pipeline()
+    inner.add_component("double", Double())
+    pipe = Pipeline()
+    pipe.add_component("component", SuperComponent(pipeline=inner))
+    graph, super_component_mapping = pipe._merge_super_component_pipelines()
+
+    text = _to_mermaid_text(graph, {"theme": "neutral"}, super_component_mapping)
+    assert "classDef component_1 fill:" in text
+    assert "classDef component fill:" not in text
+    assert ":::component_1" in text
+
+
 def test_to_mermaid_ids_does_not_reuse_a_taken_id():
     ids = _to_mermaid_ids(names=["my retriever", "my_retriever_1", "graph", "comp1"])
     assert ids == {

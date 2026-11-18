@@ -27,9 +27,23 @@ _OUTPUT_NODE = object()
 
 # Characters a Mermaid ID can safely be made of. Others, such as a space or a parenthesis, break the diagram.
 _MERMAID_ID_PATTERN = re.compile(r"[A-Za-z0-9_]+")
-# Words Mermaid reads as keywords rather than as IDs, plus `i` and `o`, the IDs of the input and output nodes.
+# Words Mermaid reads as keywords rather than as IDs, plus `i` and `o`, the IDs of the input and output nodes, and
+# `component` and `default`, class names that a SuperComponent class must not reuse.
 _RESERVED_MERMAID_IDS = frozenset(
-    {"end", "graph", "flowchart", "subgraph", "style", "linkStyle", "class", "classDef", "i", "o"}
+    {
+        "end",
+        "graph",
+        "flowchart",
+        "subgraph",
+        "style",
+        "linkStyle",
+        "class",
+        "classDef",
+        "i",
+        "o",
+        "component",
+        "default",
+    }
 )
 
 
