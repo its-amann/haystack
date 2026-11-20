@@ -80,7 +80,7 @@ SENTENCE_CLOSING_CHARS_RE = r"[\)\]}\"'’”»]*"
 # Full-width sentence terminators of Chinese and Japanese. These scripts put no space between sentences, so NLTK,
 # which looks for whitespace after a sentence ending, never splits there. A terminator that a closing quote or
 # bracket follows ends quoted or bracketed text, not the sentence, so it is not a split point.
-_CJK_SENTENCE_END_RE = re.compile(r"[。！？｡]+(?![」』”’）】〕》〉\)\]}\"'])")
+_CJK_SENTENCE_END_RE = re.compile(r"[。！？｡]+(?![。！？｡」』”’）】〕》〉\)\]}\"'])")
 
 if nltk_imports.is_successful():
 

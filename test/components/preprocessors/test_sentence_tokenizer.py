@@ -239,6 +239,16 @@ def test_split_sentences_does_not_split_on_a_full_width_terminator_inside_quotes
     ]
 
 
+@pytest.mark.parametrize("keep_white_spaces", [False, True])
+def test_split_sentences_does_not_split_stacked_terminators_inside_quotes(keep_white_spaces: bool) -> None:
+    text = "「本当？！」と聞きました。他说：“好。。”然后走了。"
+    splitter = SentenceSplitter(language="en", keep_white_spaces=keep_white_spaces)
+
+    sentences = splitter.split_sentences(text)
+
+    assert [sentence["sentence"] for sentence in sentences] == ["「本当？！」と聞きました。", "他说：“好。。”然后走了。"]
+
+
 def test_split_sentences_performance() -> None:
     # make sure our regex is not vulnerable to Regex Denial of Service (ReDoS)
     # https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS
